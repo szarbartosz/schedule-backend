@@ -6,6 +6,15 @@ schedulesRouter.get('/', async (request, response) => {
   response.json(schedules)
 })
 
+schedulesRouter.get('/:id', async (request, response) => {
+  const schedule = await Schedule.findById(request.params.id)
+  if (schedule) {
+    response.json(schedule)
+  } else {
+    response.status(404).end()
+  }
+})
+
 schedulesRouter.post('/', async (request, response) => {
   const body = request.body
 
