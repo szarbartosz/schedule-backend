@@ -21,14 +21,11 @@ const scheduleSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
-  clippingDeadline: {
+  deadline: {
     type: Date,
     required: false
   },
-  plantingDeadline: {
-    type: Date,
-    required: false
-  },
+  clipping: Boolean,
   visible: Boolean
 })
 

@@ -2,7 +2,7 @@ const schedulesRouter = require('express').Router()
 const Schedule = require('../models/schedule')
 
 schedulesRouter.get('/', async (request, response) => {
-  const schedules = await Schedule.find({})
+  const schedules = await Schedule.find({}).sort({ deadline: 1 })
   response.json(schedules)
 })
 
@@ -24,8 +24,8 @@ schedulesRouter.post('/', async (request, response) => {
     designer: body.designer,
     applicationDate: body.applicationDate,
     decisionDate: body.decisionDate,
-    clippingDeadline: body.clippingDeadline,
-    plantingDeadline: null,
+    deadline: body.clippingDeadline,
+    clipping: true,
     visible: body.visible || true
   })
 
@@ -35,8 +35,8 @@ schedulesRouter.post('/', async (request, response) => {
     designer: body.designer,
     applicationDate: body.applicationDate,
     decisionDate: body.decisionDate,
-    clippingDeadline: null,
-    plantingDeadline: body.plantingDeadline,
+    deadline: body.plantingDeadline,
+    clipping: false,
     visible: body.visible || true
   })
 
