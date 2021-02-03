@@ -23,13 +23,13 @@ const scheduleSchema = new mongoose.Schema({
   },
   clippingDeadline: {
     type: Date,
-    required: true
+    required: false
   },
   plantingDeadline: {
     type: Date,
-    required: true
+    required: false
   },
-  expired: Boolean
+  visible: Boolean
 })
 
 scheduleSchema.set('toJSON', {

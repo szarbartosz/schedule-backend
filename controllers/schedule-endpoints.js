@@ -18,7 +18,45 @@ schedulesRouter.get('/:id', async (request, response) => {
 schedulesRouter.post('/', async (request, response) => {
   const body = request.body
 
-  const schedule = new Schedule({
+  const clippingSchedule = new Schedule({
+    object: body.object,
+    investor: body.investor,
+    designer: body.designer,
+    applicationDate: body.applicationDate,
+    decisionDate: body.decisionDate,
+    clippingDeadline: body.clippingDeadline,
+    plantingDeadline: null,
+    visible: body.visible || true
+  })
+
+  const plantingSchedule = new Schedule({
+    object: body.object,
+    investor: body.investor,
+    designer: body.designer,
+    applicationDate: body.applicationDate,
+    decisionDate: body.decisionDate,
+    clippingDeadline: null,
+    plantingDeadline: body.plantingDeadline,
+    visible: body.visible || true
+  })
+
+  const savedSchedules = [await clippingSchedule.save(), await plantingSchedule.save()]
+
+  response.json(savedSchedules)
+})
+
+schedulesRouter.delete('/:id', (request, response, next) => {
+  Schedule.findByIdAndDelete(request.params.id)
+    .then(() => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
+})
+
+schedulesRouter.put('/:id', (request, response, next) => {
+  const body = request.body
+
+  const schedule = {
     object: body.object,
     investor: body.investor,
     designer: body.designer,
@@ -26,17 +64,12 @@ schedulesRouter.post('/', async (request, response) => {
     decisionDate: body.decisionDate,
     clippingDeadline: body.clippingDeadline,
     plantingDeadline: body.plantingDeadline,
-    expired: body.expired || false
-  })
+    visible: body.visible
+  }
 
-  const savedSchedule = await schedule.save()
-  response.json(savedSchedule)
-})
-
-schedulesRouter.delete('/:id', (request, response, next) => {
-  Schedule.findByIdAndDelete(request.params.id)
-    .then(() => {
-      response.status(204).end()
+  Schedule.findByIdAndUpdate(request.params.id, schedule, { new: true })
+    .then(updatedSchedule => {
+      response.json(updatedSchedule)
     })
     .catch(error => next(error))
 })
