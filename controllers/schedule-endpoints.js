@@ -4,7 +4,8 @@ const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
 schedulesRouter.get('/', async (request, response) => {
-  const schedules = await Schedule.find({}).sort({ deadline: 1 })
+  const schedules = await Schedule.find({}).populate('user', { username: 1 }).sort({ deadline: 1 })
+
   response.json(schedules)
 })
 
@@ -66,15 +67,12 @@ schedulesRouter.post('/', async (request, response) => {
   response.json(savedSchedules)
 })
 
-schedulesRouter.delete('/:id', (request, response, next) => {
-  Schedule.findByIdAndDelete(request.params.id)
-    .then(() => {
-      response.status(204).end()
-    })
-    .catch(error => next(error))
+schedulesRouter.delete('/:id', async (request, response) => {
+  await Schedule.findByIdAndDelete(request.params.id)
+  response.status(204).end()
 })
 
-schedulesRouter.put('/:id', (request, response, next) => {
+schedulesRouter.put('/:id', async (request, response) => {
   const body = request.body
 
   const schedule = {
@@ -88,11 +86,9 @@ schedulesRouter.put('/:id', (request, response, next) => {
     visible: body.visible
   }
 
-  Schedule.findByIdAndUpdate(request.params.id, schedule, { new: true })
-    .then(updatedSchedule => {
-      response.json(updatedSchedule)
-    })
-    .catch(error => next(error))
+  const updatedSchedule = await Schedule.findByIdAndUpdate(request.params.id, schedule, { new: true })
+
+  response.json(updatedSchedule)
 })
 
 module.exports = schedulesRouter
