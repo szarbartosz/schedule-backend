@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     unique: true
   },
   name: String,
+  passwordHash: String,
   schedules: [
     {
       type: mongoose.Schema.Types.ObjectId,

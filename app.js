@@ -3,11 +3,12 @@ const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
 const express = require('express')
 const app = express()
+require('express-async-errors')
 const cors = require('cors')
 const mongoose = require('mongoose')
 const schedulesRouter = require('./controllers/schedule-endpoints')
 const usersRouter = require('./controllers/user-endpoints')
-require('express-async-errors')
+const loginRouter = require('./controllers/login-endpoints')
 
 console.log('connecting to MongoDB...')
 
@@ -25,6 +26,7 @@ app.use(middleware.requestLogger)
 
 app.use('/api/schedules', schedulesRouter)
 app.use('/api/users', usersRouter)
+app.use('/api/login', loginRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
