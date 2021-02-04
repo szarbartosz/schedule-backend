@@ -26,7 +26,11 @@ const scheduleSchema = new mongoose.Schema({
     required: false
   },
   clipping: Boolean,
-  visible: Boolean
+  visible: Boolean,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 })
 
 scheduleSchema.set('toJSON', {

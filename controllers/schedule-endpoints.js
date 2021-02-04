@@ -1,5 +1,6 @@
 const schedulesRouter = require('express').Router()
 const Schedule = require('../models/schedule')
+const User = require('../models/user')
 
 schedulesRouter.get('/', async (request, response) => {
   const schedules = await Schedule.find({}).sort({ deadline: 1 })
@@ -18,6 +19,8 @@ schedulesRouter.get('/:id', async (request, response) => {
 schedulesRouter.post('/', async (request, response) => {
   const body = request.body
 
+  const user = await User.findById(body.userId)
+
   const clippingSchedule = new Schedule({
     object: body.object,
     investor: body.investor,
@@ -26,7 +29,8 @@ schedulesRouter.post('/', async (request, response) => {
     decisionDate: body.decisionDate,
     deadline: body.clippingDeadline,
     clipping: true,
-    visible: body.visible || true
+    visible: body.visible || true,
+    user: user._id
   })
 
   const plantingSchedule = new Schedule({
@@ -37,10 +41,13 @@ schedulesRouter.post('/', async (request, response) => {
     decisionDate: body.decisionDate,
     deadline: body.plantingDeadline,
     clipping: false,
-    visible: body.visible || true
+    visible: body.visible || true,
+    user: user._id
   })
 
   const savedSchedules = [await clippingSchedule.save(), await plantingSchedule.save()]
+  user.schedules = user.schedules.concat([savedSchedules[0]._id, savedSchedules[1]._id])
+  await user.save()
 
   response.json(savedSchedules)
 })
