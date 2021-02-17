@@ -86,7 +86,7 @@ schedulesRouter.put('/:id', async (request, response) => {
     visible: body.visible
   }
 
-  const updatedSchedule = await Schedule.findByIdAndUpdate(request.params.id, schedule, { new: true })
+  const updatedSchedule = await Schedule.findByIdAndUpdate(request.params.id, schedule, { new: true }).populate('user', { username: 1 })
 
   response.json(updatedSchedule)
 })
