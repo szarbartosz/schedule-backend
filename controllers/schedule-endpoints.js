@@ -3,21 +3,6 @@ const Schedule = require('../models/schedule')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
-schedulesRouter.get('/', async (request, response) => {
-  const schedules = await Schedule.find({}).populate('user', { username: 1 }).sort({ deadline: 1 })
-
-  response.json(schedules)
-})
-
-schedulesRouter.get('/:id', async (request, response) => {
-  const schedule = await Schedule.findById(request.params.id)
-  if (schedule) {
-    response.json(schedule)
-  } else {
-    response.status(404).end()
-  }
-})
-
 const getTokenFrom = request => {
   const authorization = request.get('authorization')
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
@@ -25,6 +10,36 @@ const getTokenFrom = request => {
   }
   return null
 }
+
+schedulesRouter.get('/', async (request, response) => {
+  const token = getTokenFrom(request)
+
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  if (!token || !decodedToken) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+  const user = await User.findById(decodedToken.id)
+
+  const schedules = await Schedule.find({ user: user }).populate('user', { username: 1 }).sort({ deadline: 1 })
+
+  response.json(schedules)
+})
+
+schedulesRouter.get('/:id', async (request, response) => {
+  const token = getTokenFrom(request)
+
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  if (!token || !decodedToken) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
+  const schedule = await Schedule.findById(request.params.id)
+  if (schedule) {
+    response.json(schedule)
+  } else {
+    response.status(404).end()
+  }
+})
 
 schedulesRouter.post('/', async (request, response) => {
   const body = request.body
@@ -68,11 +83,25 @@ schedulesRouter.post('/', async (request, response) => {
 })
 
 schedulesRouter.delete('/:id', async (request, response) => {
+  const token = getTokenFrom(request)
+
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  if (!token || !decodedToken) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
   await Schedule.findByIdAndDelete(request.params.id)
   response.status(204).end()
 })
 
 schedulesRouter.put('/:id', async (request, response) => {
+  const token = getTokenFrom(request)
+
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  if (!token || !decodedToken) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
   const body = request.body
 
   const schedule = {
